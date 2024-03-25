@@ -1,10 +1,19 @@
+from unittest import result
 import openpyxl
-from src import config
+from src.config import AppConfig
 
 
 def main():
-    files = config.files
-    sheets = config.sheets
+    # AppConfigのインスタンスを作成
+    config = AppConfig()
+    result = config.get_files_and_sheets()
+
+    if result is None:
+        return print(".envを確認してください")
+
+    files = result["files"]
+    sheets = result["sheets"]
+    # 設定が有効かどうかをチェック
 
     # 保存するファイル
     wb_result = openpyxl.Workbook()
