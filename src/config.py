@@ -4,27 +4,27 @@ import os
 class AppConfig:
     def __init__(self):
         load_dotenv()
-        self.OldUserList = os.getenv("OldUserList")
-        self.newM1List = os.getenv("newM1List")
-        self.newResidualList = os.getenv("newResidualList")
-        self.SheetOldUserList = os.getenv("SheetOldUserList")
-        self.SheetNewM1List = os.getenv("SheetNewM1List")
-        self.SheetNewResidualList = os.getenv("SheetNewResidualList")
+        self.OldList = os.getenv("OldList")
+        self.NewList = os.getenv("NewList")
+        self.ResidualList = os.getenv("ResidualList")
+        self.SheetOldList = os.getenv("SheetOldList")
+        self.SheetNewList = os.getenv("SheetNewList")
+        self.SheetResidualList = os.getenv("SheetResidualList")
 
     def __getitem__(self, key):
         return self.dict.get(key)
 
         
     def get_files_and_sheets(self):
-        if  (self.OldUserList is str and self.newM1List and str and self.newResidualList is str
-             and self.SheetOldUserList is str and self.SheetNewM1List is str and self.SheetNewResidualList is str):
+        if  (self.OldList is str and self.NewList and str and self.ResidualList is str
+             and self.SheetOldList is str and self.SheetNewList is str and self.SheetResidualList is str):
             
-            files = {"OldUserList": "files/" + self.OldUserList,
-                     "newM1List": "files/" + self.newM1List,
-                     "newResidualList": "files/" + self.newResidualList}
-            sheets = {"SheetOldUserList": self.SheetOldUserList,
-                      "SheetNewM1List": self.SheetNewM1List,
-                      "SheetNewResidualList": self.SheetNewResidualList}
+            files = {"OldList": "files/" + self.OldList,
+                     "NewList": "files/" + self.NewList,
+                     "ResidualList": "files/" + self.ResidualList}
+            sheets = {"SheetOldList": self.SheetOldList,
+                      "SheetNewList": self.SheetNewList,
+                      "SheetResidualList": self.SheetResidualList}
             
             self.dict = {"files": files,"sheets": sheets}
             
