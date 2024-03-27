@@ -8,7 +8,7 @@ import numpy as np
 # データが上から何個目から貼っているか記載
 DIFF = 2
 # M1,残留、退学などを記入する横のindex
-RevisionColumn = 3
+RevisionColumn = 2
 
 # アドレスを6桁の番号に変更
 def address_to_number(address):
@@ -46,6 +46,20 @@ def OldList_loop(number_OldLists,number_NewLists,number_ResidualLists,np_save):
 
     return np_save
 
+# 次年度の学生リストの「学籍番号」を読み取り、昨年度学生リストに一致するものを探す
+def NewList_loop(number_OldLists,number_NewLists,np_NewList,np_save):
+    for index_number_List in range(number_NewLists.shape[0]):
+        # indexからデータにする
+        number_NewList = number_NewLists[index_number_List][1:]
+        print("number_NewList",number_NewList)
+        contains_OldLists = np.vectorize(lambda element: number_NewList in element)(number_OldLists)
+
+        # 次年度の修士M1リストにあった場合  
+        if(np.any(contains_OldLists) == False):   
+            np_save = np.append(np_save,[[np_NewList[DIFF + index_number_List,1],"s" + str(number_NewList) + "@stn.nagaokaut.ac.jp","M1追加"]],axis=0)
+
+    return np_save
+
 def main():
     # AppConfigのインスタンスを作成
     config = AppConfig()
@@ -68,11 +82,11 @@ def main():
     np_save= np_OldList
 
     # 必要な値を取得する
-    addresses_OldLists = np_OldList[DIFF:,2]
+    addresses_OldLists = np_OldList[DIFF:,1]
     number_NewLists = np_NewList[DIFF:,0]
     number_ResidualLists = np_ResidualList[DIFF:,0]
 
-    print("addresses_OldLists",addresses_OldLists.shape[0])
+    print("addresses_OldLists",addresses_OldLists)
     print("number_NewLists",number_NewLists)
     print("number_ResidualLists",number_ResidualLists)
 
@@ -82,6 +96,8 @@ def main():
     print("number_OldLists",number_OldLists)
 
     np_save = OldList_loop(number_OldLists,number_NewLists,number_ResidualLists,np_save)
+
+    np_save = NewList_loop(number_OldLists,number_NewLists,np_NewList,np_save)
 
     # np_saveをpandas.Dataframeに変換してelsxで保存
     df_save = pd.DataFrame(np_save)
