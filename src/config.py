@@ -15,20 +15,19 @@ class AppConfig:
     def __getitem__(self, key):
         return self.dict.get(key)
         
+
     def get_files_and_sheets(self):
-        if  (type(self.OldList) is str and type(self.NewList) is str and type(self.ResidualList) is str
-             and type(self.SheetOldList) is str and type(self.SheetNewList) is str and type(self.SheetResidualList) is str):
-            
-            files = {"OldList": "files/" + self.OldList,
-                     "NewList": "files/" + self.NewList,
-                     "ResidualList": "files/" + self.ResidualList}
-            sheets = {"SheetOldList": self.SheetOldList,
-                      "SheetNewList": self.SheetNewList,
-                      "SheetResidualList": self.SheetResidualList}
-            
-            self.dict = {"files": files,"sheets": sheets}
-            
-            return self.dict
+        # 属性が全て文字列であることを確認
+        if all(isinstance(getattr(self, attr), str) for attr in 
+           ["OldList", "NewList", "ResidualList", "SheetOldList", "SheetNewList", "SheetResidualList"]):
+        
+            # ファイルとシートの辞書を作成
+            files = {k: f"files/{getattr(self, k)}" for k in ["OldList", "NewList", "ResidualList"]}
+            sheets = {k: getattr(self, k) for k in ["SheetOldList", "SheetNewList", "SheetResidualList"]}
+
+            self.dict = {"files": files, "sheets": sheets}
+        
+        return self.dict
         
 
     
