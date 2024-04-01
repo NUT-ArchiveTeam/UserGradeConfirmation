@@ -40,8 +40,13 @@ def OldList_loop(
                 if number_OldList == number_ResidualList:
                     np_save[index_number_OldList, RevisionColumn] = grades["OldGrade"]
 
-        if not np_save[index_number_OldList, RevisionColumn]:
+        if (
+            not np_save[index_number_OldList, RevisionColumn] == grades["OldGrade"]
+            and not np_save[index_number_OldList, RevisionColumn] == grades["NewGrade"]
+        ):
             np_save[index_number_OldList, RevisionColumn] = "退学等"
+
+        # print(np_save[index_number_OldList,RevisionColumn],type(np_save[index_number_OldList, RevisionColumn]))
 
     return np_save
 
@@ -52,25 +57,28 @@ def NewList_loop(number_OldLists, number_NewLists, np_NewList, np_save, grades):
     for number_index_NewList in range(number_NewLists.shape[0]):
         # 次年度の学生は8桁の学籍番号が数値で入っているため文字にして最後2桁を削る
         number_NewList = number_NewLists[number_index_NewList]
-        if isinstance(number_NewList, int):
-            number_NewList = str(number_NewList)[:-2]
-            # 昨年度学生一覧の中に、今回のインデックスの次年度学生が存在するか判定
-            contains_OldLists = np.vectorize(lambda element: number_NewList in element)(
-                number_OldLists
-            )
-            # 次年度学生が昨年度学生に含まれていない場合の処理
-            if not np.any(contains_OldLists):
-                np_save = np.append(
-                    np_save,
-                    [
-                        [
-                            np_NewList[DIFF + number_index_NewList + 1, 3],
-                            "s" + str(number_NewList),
-                            grades["NewGrade"] + "追加",
-                        ]
-                    ],
-                    axis=0,
-                )
+        print(number_NewList, type(number_NewList))
+        if isinstance(number_NewList, str):
+            if len(number_NewList) == 8:
+                number_NewList = number_NewList[:-2]
+                print(number_NewList)
+                # 昨年度学生一覧の中に、今回のインデックスの次年度学生が存在するか判定
+                contains_OldLists = np.vectorize(
+                    lambda element: number_NewList in element
+                )(number_OldLists)
+                # 次年度学生が昨年度学生に含まれていない場合の処理
+                if not np.any(contains_OldLists):
+                    np_save_cp = np_save[0, :]
+
+                    np_save_cp[0] = np_NewList[DIFF + number_index_NewList + 1, 3]
+                    np_save_cp[1] = "s" + str(number_NewList)
+                    np_save_cp[2] = "追加"
+
+                    np_save = np.append(
+                        np_save,
+                        [np_save_cp],
+                        axis=0,
+                    )
 
     return np_save
 
@@ -87,6 +95,7 @@ def main():
     # 必要なパスと名前を取得
     files = result["files"]
     grades = result["grades"]
+    print(files)
 
     # エクセルファイルを読み取り、シートを全て読み込む
     np_OldList = pd.read_excel(files["OldList"], header=None, index_col=None).to_numpy()
@@ -104,6 +113,7 @@ def main():
     new_column_empty_str = np.empty((np_save.shape[0], 1), dtype=str)
     new_column_empty_str[:] = ""
     np_save = np.hstack((np_save, new_column_empty_str))
+    print(np_save)
 
     # 必要な値を取得する
     addresses_OldLists = np_OldList[:, 1]
